@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="CareerBot career guidance for Computer Studies students." />
+    <title>CareerBot | Computer Studies Career Guide</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="sidebar" aria-label="CareerBot information">
+        <div class="brand-mark" aria-hidden="true">CB</div>
+        <div>
+          <p class="eyebrow">Career guidance</p>
+          <h1>CareerBot</h1>
+          <p class="intro">A focused guide for your next move in computing.</p>
+        </div>
+
+        <div class="scope-note">
+          <span class="status-dot" aria-hidden="true"></span>
+          <div>
+            <strong>Computer Studies only</strong>
+            <p>BSCS, BSIT, BSIS, BSCpE and related tech careers.</p>
+          </div>
+        </div>
+
+        <div class="sidebar-footer">
+          <span class="mode-label"><span class="live-dot" aria-hidden="true"></span> Demo mode</span>
+          <button id="clearButton" class="text-button" type="button">Clear chat</button>
+        </div>
+      </aside>
+
+      <section class="chat-panel" aria-label="CareerBot chat">
+        <header class="chat-header">
+          <div>
+            <p class="eyebrow">Your career companion</p>
+            <h2>What are you figuring out?</h2>
+          </div>
+          <div class="header-badge">10 career topics</div>
+        </header>
+
+        <div id="messages" class="messages" aria-live="polite" aria-label="Conversation">
+          <article class="message bot-message">
+            <div class="bubble">
+              <p>Hi! I can help you explore computing career paths, build skills, prepare for interviews, or compare roles.</p>
+              <p>What would you like to work through?</p>
+              <span class="message-meta">CareerBot · ready</span>
+            </div>
+          </article>
+        </div>
+
+        <div class="suggestions" aria-label="Suggested questions">
+          <button type="button" data-prompt="What career paths can I take as a BSCS graduate?">Explore career paths</button>
+          <button type="button" data-prompt="What skills do I need for data science?">Build my skill roadmap</button>
+          <button type="button" data-prompt="How do I prepare for a technical interview?">Prepare for interviews</button>
+        </div>
+
+        <form id="chatForm" class="composer">
+          <label class="sr-only" for="messageInput">Ask CareerBot a question</label>
+          <textarea id="messageInput" rows="1" placeholder="Ask about your computing career..." maxlength="1000" required></textarea>
+          <button class="send-button" type="submit" aria-label="Send message">Send <span aria-hidden="true">↗</span></button>
+        </form>
+        <p class="disclaimer">Career guidance is informational. Responses are limited to Computer Studies topics.</p>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>
