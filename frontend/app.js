@@ -5,6 +5,13 @@ const form = document.querySelector('#chatForm');
 const input = document.querySelector('#messageInput');
 const clearButton = document.querySelector('#clearButton');
 const suggestionButtons = document.querySelectorAll('[data-prompt]');
+let conversationHistory = [];
+
+function scrollToLatest() {
+  requestAnimationFrame(() => {
+    messages.scrollTo({ top: messages.scrollHeight, behavior: 'smooth' });
+  });
+}
 
 const allowedTerms = [
   'cs', 'it', 'is', 'cpe', 'bscs', 'bsit', 'bsis', 'bscpe',
@@ -42,11 +49,11 @@ function addMessage(text, role, meta = '') {
   const article = document.createElement('article');
   article.className = `message ${role}-message`;
   article.innerHTML = `
-    <div class="avatar" aria-hidden="true">${role === 'bot' ? 'CB' : 'YOU'}</div>
+    ${role === 'user' ? '<div class="avatar" aria-hidden="true">YOU</div>' : ''}
     <div class="bubble"><p>${escapeHtml(text)}</p>${meta ? `<span class="message-meta">${escapeHtml(meta)}</span>` : ''}</div>
   `;
   messages.append(article);
-  messages.scrollTop = messages.scrollHeight;
+  scrollToLatest();
 }
 
 function escapeHtml(value) {
@@ -66,20 +73,20 @@ async function getReply(message) {
     const response = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message, history: [] }),
+      body: JSON.stringify({ message, history: conversationHistory }),
     });
     if (!response.ok) throw new Error('CareerBot API request failed');
     const data = await response.json();
-    return { text: data.answer || data.response, meta: data.intent ? `Detected intent: ${data.intent}` : '' };
+    return { text: data.answer || data.response, meta: '' };
   }
 
   const normalized = message.toLowerCase();
   const hasAllowedTerm = allowedTerms.some((term) => normalized.includes(term));
   const detected = detectIntent(message);
   if (!hasAllowedTerm || detected.intent === 'out_of_scope') {
-    return { text: refusal, meta: 'Detected intent: out_of_scope · Demo mode' };
+    return { text: refusal, meta: '' };
   }
-  return { text: responses[detected.intent], meta: `Detected intent: ${detected.intent} · Demo mode` };
+  return { text: responses[detected.intent], meta: '' };
 }
 
 async function submitMessage(message) {
@@ -90,14 +97,16 @@ async function submitMessage(message) {
   input.style.height = 'auto';
   const typing = document.createElement('article');
   typing.className = 'message bot-message';
-  typing.innerHTML = '<div class="avatar" aria-hidden="true">CB</div><div class="bubble"><p>Thinking...</p></div>';
+  typing.innerHTML = '<div class="bubble"><p>Thinking...</p></div>';
   messages.append(typing);
-  messages.scrollTop = messages.scrollHeight;
+  scrollToLatest();
 
   try {
     const reply = await getReply(cleanMessage);
     typing.remove();
     addMessage(reply.text, 'bot', reply.meta);
+    conversationHistory.push({ role: 'user', content: cleanMessage });
+    conversationHistory.push({ role: 'assistant', content: reply.text });
   } catch (error) {
     typing.remove();
     addMessage('I could not reach the model service right now. Please try again in a moment.', 'bot', 'Connection error');
@@ -124,6 +133,8 @@ input.addEventListener('keydown', (event) => {
 suggestionButtons.forEach((button) => button.addEventListener('click', () => submitMessage(button.dataset.prompt)));
 
 clearButton.addEventListener('click', () => {
-  messages.innerHTML = '<article class="message bot-message"><div class="avatar" aria-hidden="true">CB</div><div class="bubble"><p>Chat cleared. What would you like to work through?</p><span class="message-meta">CareerBot · ready</span></div></article>';
+  conversationHistory = [];
+  messages.innerHTML = '<article class="message bot-message"><div class="bubble"><p>Chat cleared. What would you like to work through?</p><span class="message-meta">CareerBot · ready</span></div></article>';
+  scrollToLatest();
   input.focus();
 });
